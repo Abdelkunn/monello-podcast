@@ -131,21 +131,51 @@
     }, (duration + delay) * 1000 + 300);
   }
 
-  /* ---------- Contact Form — basic UX ---------- */
+  /* ---------- Contact Form — Formspree ---------- */
   var form = document.getElementById('contactForm');
   if (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var btn = form.querySelector('.form-submit');
-      btn.innerHTML = '🍌 Messaggio inviato!';
-      btn.style.background = 'linear-gradient(135deg,#25D366,#1aab52)';
+      var data = new FormData(form);
+
+      btn.innerHTML = '⏳ Invio in corso...';
       btn.disabled = true;
-      setTimeout(function () {
-        btn.innerHTML = 'Invia Messaggio <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
-        btn.style.background = '';
+
+      fetch(form.action, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      })
+      .then(function (response) {
+        if (response.ok) {
+          btn.innerHTML = '🍌 Messaggio inviato!';
+          btn.style.background = 'linear-gradient(135deg,#25D366,#1aab52)';
+          form.reset();
+          setTimeout(function () {
+            btn.innerHTML = 'Invia Messaggio <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
+            btn.style.background = '';
+            btn.disabled = false;
+          }, 4000);
+        } else {
+          btn.innerHTML = '❌ Errore — riprova';
+          btn.style.background = 'linear-gradient(135deg,#e84b8a,#c0002e)';
+          btn.disabled = false;
+          setTimeout(function () {
+            btn.innerHTML = 'Invia Messaggio <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
+            btn.style.background = '';
+          }, 3000);
+        }
+      })
+      .catch(function () {
+        btn.innerHTML = '❌ Errore di rete — riprova';
+        btn.style.background = 'linear-gradient(135deg,#e84b8a,#c0002e)';
         btn.disabled = false;
-        form.reset();
-      }, 3500);
+        setTimeout(function () {
+          btn.innerHTML = 'Invia Messaggio <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
+          btn.style.background = '';
+        }, 3000);
+      });
     });
   }
 
